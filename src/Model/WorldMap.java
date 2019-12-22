@@ -22,7 +22,7 @@ public class WorldMap {
     public void drawMap(){
         System.out.println("Drawing the map...");
         this.initialize();
-        this.drawTerrain(5); //draw mountains
+        this.drawTerrain(7); //draw mountains
     }
 
     /**
@@ -93,7 +93,9 @@ public class WorldMap {
                         System.out.print("\u001b[48;5;226m");  // 48 for background color; 38 for font color
                     }else if(a>= 1000 && a<= 3000){
                         System.out.print("\u001b[48;5;228m");
-                    }else if(a>3000){
+                    }else if(a>3000&& a<= 5000){
+                        System.out.print("\u001b[48;5;229m");
+                    }else if(a>5000 && a<8000){
                         System.out.print("\u001b[48;5;230m");
                     }
                     System.out.format("%5d",a);
