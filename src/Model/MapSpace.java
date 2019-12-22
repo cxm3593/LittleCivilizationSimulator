@@ -24,5 +24,7 @@ public class MapSpace {
         return altitude;
     }
 
-
+    public void setAltitude(int altitude) {
+        this.altitude = altitude;
+    }
 }

@@ -1,10 +1,14 @@
 package Model;
 
+import javax.swing.*;
+import java.util.Random;
+
 public class WorldMap {
 
     private MapSpace map[][];
     private int length;
     private int wide;
+    public final int MaxAltitudeStep = 500;
 
 
     public WorldMap(int length, int wide){
@@ -19,6 +23,7 @@ public class WorldMap {
     public void drawMap(){
         System.out.println("Drawing the map...");
         this.initialize();
+        this.drawTerrain(5); //draw mountains
     }
 
     /**
@@ -38,7 +43,29 @@ public class WorldMap {
      * @param mn mountain number
      */
     public void drawTerrain(int mn){
+        Random rand = new Random();
+        for(int i=0; i<mn; i++){
+            drawTerrainRec(rand.nextInt(this.length),rand.nextInt(this.wide),rand.nextInt(8000));
+        }
+    }
 
+    /**
+     * Recursively to draw mountain with random locations;
+     * @param x x coordinate
+     * @param y y coordinate
+     * @param a: altitude
+     */
+    private void drawTerrainRec(int x, int y,int a){
+        Random rand = new Random();
+        if(map[x][y].getAltitude() == 0){ // this process only draws places without initial terrain.
+            if(a >= 200){ //no more mountain to draw if a is smaller than 200
+                map[x][y].setAltitude(a);
+                if(x>0)drawTerrainRec(x-1,y,(a - rand.nextInt(MaxAltitudeStep)));
+                if(x<this.length)drawTerrainRec(x+1,y,(a - rand.nextInt(MaxAltitudeStep)));
+                if(y<this.wide)drawTerrainRec(x,y+1,(a - rand.nextInt(MaxAltitudeStep)));
+                if(y>0)drawTerrainRec(x,y-1,(a - rand.nextInt(MaxAltitudeStep)));
+            }
+        }
     }
 
     /**
@@ -47,17 +74,20 @@ public class WorldMap {
      * @return
      */
     public void print(ViewMode vm){
+        JTextArea textarea = new JTextArea();
+        textarea.setTabSize(5);
         System.out.println("Printing the map...");
 
         this.printSeperateLine();
         for(int i=0; i < (this.length-1); i++){
-            System.out.print("| ");
+            System.out.print("|\t");
             for(int j=0; j<(this.wide-1);j++){
                 if(vm == ViewMode.Altitude){
-                    System.out.print(map[i][j].getAltitude() + " ");
+                    int a = map[i][j].getAltitude();
+                    System.out.format("%5d",a);
                 }
             }
-            System.out.println(" |");
+            System.out.println("\t|");
         }
         this.printSeperateLine();
     }
