@@ -5,7 +5,7 @@ import java.util.Collections;
 import java.util.Random;
 
 public class WorldMap {
-    private Boolean debug_mode = true; // print out debug information in this class?
+    private Boolean debug_mode = false; // print out debug information in this class?
 
     private MapSpace map[][];
     private int row;
@@ -30,8 +30,8 @@ public class WorldMap {
     public void drawMap(){
         if(debug_mode==true)System.out.println("Drawing the map...");
         this.initialize();
-        this.drawTerrain(1); //draw mountains
-        this.drawOcean(1); //draw oceans
+        this.drawTerrain(5); //draw mountains
+        this.drawOcean(3); //draw oceans
         this.drawRiver(); //draw rivers
     }
 
@@ -127,7 +127,7 @@ public class WorldMap {
         if(debug_mode==true)System.out.println("Drawing River from peak...");
         for(Coordinate i: peaks){
             if(debug_mode==true)System.out.format("Drawing from: (%d, %d)\n",i.getX(),i.getY());
-            River river = new River(this,i,100);
+            River river = new River(this,i,4000);
             Rivers.add(river);
         }
         for(River r : Rivers){
@@ -186,7 +186,7 @@ public class WorldMap {
     }
 
     public MapSpace getLocation(Coordinate c){
-        if(map[c.getX()][c.getY()]!=null){
+        if(c.getX()>0 && c.getX()<this.column&&c.getY()>0&&c.getY()<this.row){
             return map[c.getX()][c.getY()];
         }else{
             return null;
