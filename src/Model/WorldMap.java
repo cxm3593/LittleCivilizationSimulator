@@ -129,12 +129,17 @@ public class WorldMap {
     }
 
     public void drawRiverRec(Coordinate i){
-        Coordinate flowTo = findlowerground(i);
-        if(!flowTo.equals(i)){
-            map[flowTo.getX()][flowTo.getY()].addModifier(new RiverModifer());
+        if(!map[i.getX()][i.getY()].checkModifier(new RiverModifer())){
+            map[i.getX()][i.getY()].addModifier(new RiverModifer());
             if(debug_mode==true)System.out.format("River drawn at: (%d, %d)\n",i.getX(),i.getY());
-            drawRiverRec(flowTo);
-            if(debug_mode==true)System.out.format("flowing to: (%d, %d)\n",flowTo.getX(),flowTo.getY());
+
+            Coordinate flowTo = findlowerground(i);
+            if(!flowTo.equals(i)){
+                drawRiverRec(flowTo);
+                if(debug_mode==true)System.out.format("flowing to: (%d, %d)\n",flowTo.getX(),flowTo.getY());
+            }else{
+                if(debug_mode==true)System.out.format("No more place to flow, river stop at (%d, %d)\n",i.getX(),i.getY());
+            }
         }
     }
 
@@ -158,13 +163,28 @@ public class WorldMap {
         lowergrounds.add(new Coordinate(x,y-1));
         lowergrounds.add(new Coordinate(x,y+1));
 
-
-        for(Coordinate j: lowergrounds){
-            if(j.getX()-1<0||j.getY()-1<0||j.getX()+1>this.column||j.getY()>this.row
-                    || map[j.getX()][j.getY()].getTerrainModifiers().contains(new OceanModifier())){
+        for(Coordinate j: lowergrounds){ //stop those on bondary
+            if(j.getX()-1<0||j.getY()-1<0||j.getX()+1>=this.column||j.getY()>=this.row){
+                if(debug_mode==true){System.out.println("River reached boundary.");}
                 return lowest;
             }
-            if(map[j.getX()][j.getY()].getAltitude()<map[lowest.getX()][lowest.getY()].getAltitude()){
+        }
+
+        for(int index=0;index<lowergrounds.size();index++){
+            Coordinate temp = lowergrounds.get(index);
+            if(map[temp.getX()][temp.getY()].checkModifier(new RiverModifer())){
+                lowergrounds.remove(index);
+            }
+        }
+
+        lowest = lowergrounds.get(0);
+
+        for(Coordinate j: lowergrounds){
+            if(map[j.getX()][j.getY()].getTerrainModifiers().contains(new OceanModifier())){
+                if(debug_mode==true){System.out.println("River reached ocean.");}
+                return lowest;
+            }
+            if(map[j.getX()][j.getY()].getAltitude()<=map[lowest.getX()][lowest.getY()].getAltitude()){
                 lowest = j;
             }
         }
