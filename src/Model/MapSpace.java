@@ -8,6 +8,7 @@ public class MapSpace {
     private int passability;
     private int humidity;
     private int altitude;
+    private int water_resrouce;
     private ArrayList<TerrainModifier> terrainModifiers = new ArrayList<>();
 
     public MapSpace(){
@@ -39,17 +40,18 @@ public class MapSpace {
      */
     public boolean addModifier(TerrainModifier modifier){
         this.terrainModifiers.add(modifier);
-        this.passability = this.altitude + modifier.getPass_modify();
-        this.humidity = this.altitude + modifier.getHumi_modify();
+        this.passability = this.passability + modifier.getPass_modify();
+        this.humidity = this.humidity + modifier.getHumi_modify();
         this.altitude = this. altitude + modifier.getAltitude_modify();
+        this.water_resrouce = this.water_resrouce+modifier.getWater_resource_modify();
 
         return true;
     }
 
     public boolean removeModifier(TerrainModifier modifier){
         this.terrainModifiers.remove(modifier);
-        this.passability = this.altitude - modifier.getPass_modify();
-        this.humidity = this.altitude - modifier.getHumi_modify();
+        this.passability = this.passability - modifier.getPass_modify();
+        this.humidity = this.humidity - modifier.getHumi_modify();
         this.altitude = this. altitude - modifier.getAltitude_modify();
 
         return true;

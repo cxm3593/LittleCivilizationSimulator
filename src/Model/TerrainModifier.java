@@ -6,6 +6,7 @@ public abstract class TerrainModifier {
     private int pass_modify;
     private int humi_modify;
     private int altitude_modify;
+    private int water_resource;
 
     public TerrainModifier(){
     }
@@ -22,6 +23,10 @@ public abstract class TerrainModifier {
         return altitude_modify;
     }
 
+    public int getWater_resource_modify() {
+        return water_resource;
+    }
+
     public void setPass_modify(int pass_modify) {
         this.pass_modify = pass_modify;
     }
@@ -32,6 +37,10 @@ public abstract class TerrainModifier {
 
     public void setAltitude_modify(int altitude_modify) {
         this.altitude_modify = altitude_modify;
+    }
+
+    public void setWater_resource_modify(int water_resource){
+        this.water_resource = water_resource;
     }
 
     @Override

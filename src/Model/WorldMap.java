@@ -1,6 +1,7 @@
 package Model;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Random;
 
 public class WorldMap {
@@ -12,6 +13,7 @@ public class WorldMap {
     public final int MaxAltitudeStep = 500;
     public final int MaxOceanStep = 450;
     private ArrayList<Coordinate> peaks;
+    private ArrayList<River> Rivers;
 
 
     public WorldMap(int row, int column){
@@ -19,6 +21,7 @@ public class WorldMap {
         this.column = column;
         map = new MapSpace[row][column];
         peaks = new ArrayList<>();
+        Rivers = new ArrayList<>();
     }
 
     /**
@@ -27,8 +30,8 @@ public class WorldMap {
     public void drawMap(){
         if(debug_mode==true)System.out.println("Drawing the map...");
         this.initialize();
-        this.drawTerrain(7); //draw mountains
-        this.drawOcean(3); //draw oceans
+        this.drawTerrain(1); //draw mountains
+        this.drawOcean(1); //draw oceans
         this.drawRiver(); //draw rivers
     }
 
@@ -124,73 +127,14 @@ public class WorldMap {
         if(debug_mode==true)System.out.println("Drawing River from peak...");
         for(Coordinate i: peaks){
             if(debug_mode==true)System.out.format("Drawing from: (%d, %d)\n",i.getX(),i.getY());
-            drawRiverRec(i);
+            River river = new River(this,i,100);
+            Rivers.add(river);
+        }
+        for(River r : Rivers){
+            r.flow();
         }
     }
 
-    public void drawRiverRec(Coordinate i){
-        if(!map[i.getX()][i.getY()].checkModifier(new RiverModifer())){
-            map[i.getX()][i.getY()].addModifier(new RiverModifer());
-            if(debug_mode==true)System.out.format("River drawn at: (%d, %d)\n",i.getX(),i.getY());
-
-            Coordinate flowTo = findlowerground(i);
-            if(!flowTo.equals(i)){
-                drawRiverRec(flowTo);
-                if(debug_mode==true)System.out.format("flowing to: (%d, %d)\n",flowTo.getX(),flowTo.getY());
-            }else{
-                if(debug_mode==true)System.out.format("No more place to flow, river stop at (%d, %d)\n",i.getX(),i.getY());
-            }
-        }
-    }
-
-    /**
-     * Find a lower place that a river would flow to;
-     * @param i
-     * @return
-     */
-    private Coordinate findlowerground(Coordinate i){
-        int x = i.getX();
-        int y = i.getY();
-        Coordinate lowest = i;
-
-        ArrayList<Coordinate> lowergrounds = new ArrayList<>();
-        lowergrounds.add(new Coordinate(x-1,y));
-        lowergrounds.add(new Coordinate(x-1,y-1));
-        lowergrounds.add(new Coordinate(x-1,y+1));
-        lowergrounds.add(new Coordinate(x+1,y));
-        lowergrounds.add(new Coordinate(x+1,y-1));
-        lowergrounds.add(new Coordinate(x+1,y+1));
-        lowergrounds.add(new Coordinate(x,y-1));
-        lowergrounds.add(new Coordinate(x,y+1));
-
-        for(Coordinate j: lowergrounds){ //stop those on bondary
-            if(j.getX()-1<0||j.getY()-1<0||j.getX()+1>=this.column||j.getY()>=this.row){
-                if(debug_mode==true){System.out.println("River reached boundary.");}
-                return lowest;
-            }
-        }
-
-        for(int index=0;index<lowergrounds.size();index++){
-            Coordinate temp = lowergrounds.get(index);
-            if(map[temp.getX()][temp.getY()].checkModifier(new RiverModifer())){
-                lowergrounds.remove(index);
-            }
-        }
-
-        lowest = lowergrounds.get(0);
-
-        for(Coordinate j: lowergrounds){
-            if(map[j.getX()][j.getY()].getTerrainModifiers().contains(new OceanModifier())){
-                if(debug_mode==true){System.out.println("River reached ocean.");}
-                return lowest;
-            }
-            if(map[j.getX()][j.getY()].getAltitude()<=map[lowest.getX()][lowest.getY()].getAltitude()){
-                lowest = j;
-            }
-        }
-
-        return lowest;
-    }
 
     /**
      * print the map out as a 2d character array
@@ -206,7 +150,7 @@ public class WorldMap {
             for(int j = 0; j<(this.column); j++){
                 if(vm == ViewMode.Altitude){
                     int a = map[i][j].getAltitude();
-                    if(a==0){
+                    if(a<=0){
                         System.out.print("\u001b[48;5;220m");
                     }
                     else if(a>0 && a<1000){
@@ -218,7 +162,7 @@ public class WorldMap {
                     }else if(a>5000 && a<8000){
                         System.out.print("\u001b[48;5;230m");
                     }
-                    else if(map[i][j].getTerrainModifiers().contains(new OceanModifier())){
+                    if(map[i][j].getTerrainModifiers().contains(new OceanModifier())){
                         System.out.print("\u001b[48;5;27m");
                     }
                     if(map[i][j].getTerrainModifiers().contains(new RiverModifer())){
@@ -239,6 +183,14 @@ public class WorldMap {
             System.out.format("%5s","_");
         }
         System.out.println();
+    }
+
+    public MapSpace getLocation(Coordinate c){
+        if(map[c.getX()][c.getY()]!=null){
+            return map[c.getX()][c.getY()];
+        }else{
+            return null;
+        }
     }
 
 //    public String toString(){
